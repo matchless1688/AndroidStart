@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">1</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="user_name_hint">input user name</string>
+    <string name="user_pwd_hint">input password</string>
+    <string name="login_btn">Login</string>
+    <string name="reg_btn">Register</string>
+    <string name="submit_btn">Submit</string>
+    <string name="title_activity_display_msg">2</string>
+    <string name="action_search">Search</string>
+    <string name="action_setting">Settings</string>
+    <string name="user_name">User Name:</string>
+    <string name="user_pwd">Password:</string>
+    <string name="user_pwd_confirm_hint">input password again</string>
+
+</resources>
