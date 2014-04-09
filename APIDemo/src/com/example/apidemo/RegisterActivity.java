@@ -1,7 +1,7 @@
 package com.example.apidemo;
 
-import com.example.apidemo.MainActivity.PlaceholderFragment;
-
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -16,10 +16,11 @@ public class RegisterActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		 setContentView(R.layout.activity_register);
 		
 		if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.containerRegister, new PlaceholderFragment())
                     .commit();
         }
 	}
@@ -56,4 +57,11 @@ public class RegisterActivity extends ActionBarActivity {
 		}
 	}
 
+	public void doSubmit(View view) {
+		SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sp.edit();
+		editor.putString("userId", "");
+		editor.putString("password", "");
+		editor.commit();
+    }
 }
