@@ -1,7 +1,17 @@
 package com.example.apidemo;
 
+import java.util.List;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -9,8 +19,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.example.apidemo.dbhelper.UserInfoDbHelper;
+import com.example.apidemo.module.UserInfo;
+import com.example.apidemo.module.UserInfoContract.UserInfoEntry;
 
 public class MainActivity extends ActionBarActivity {
+	
+	private static final int CONTACT_PICK_REQUEST = 1;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +73,86 @@ public class MainActivity extends ActionBarActivity {
             return rootView;
         }
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if(requestCode == CONTACT_PICK_REQUEST) {
+    		if(resultCode == RESULT_OK) {
+    			Uri contactUri = data.getData();
+    			String[] projection = {Phone.NUMBER};
+    			Cursor cur = getContentResolver().query(contactUri, projection, null, null, null);
+    			cur.moveToFirst();
+    			String number = cur.getString(cur.getColumnIndexOrThrow(Phone.NUMBER));
+    			Toast.makeText(this, number, Toast.LENGTH_SHORT).show();
+    		}
+    	}
+    }
 
     public void doLogin(View view) {
-    	
+    	EditText userNameView = (EditText) findViewById(R.id.user_name);
+		String userName = userNameView.getText().toString();
+		EditText passView = (EditText) findViewById(R.id.user_pwd);
+		String pass = passView.getText().toString();
+		
+		UserInfo user = loginBySqlite();
+		
+		if(userName.equals(user.getUserName()) && pass.equals(user.getPass())) {
+			Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, getString(R.string.login_invalid), Toast.LENGTH_SHORT).show();
+		}
     }
     
     public void doRegister(View view) {
     	Intent intent = new Intent(this, RegisterActivity.class);
     	startActivity(intent);
+    }
+    
+    private UserInfo loginByPreference() {
+    	SharedPreferences sp = getSharedPreferences("logininfo", Context.MODE_PRIVATE);
+		String userNameStore = sp.getString("userId", "admin");
+		String passStore = sp.getString("password", "123");
+		
+		UserInfo user = new UserInfo();
+		user.setUserName(userNameStore);
+		user.setPass(passStore);
+		
+		return user;
+    }
+    
+    private UserInfo loginBySqlite() {
+    	UserInfoDbHelper dbHelper = new UserInfoDbHelper(getBaseContext());
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		
+		String[] projection = {
+			    UserInfoEntry.COLUMN_USER_NAME,
+			    UserInfoEntry.COLUMN_USER_PASS
+			    };
+		Cursor cur = db.query(UserInfoEntry.TABLE_NAME, projection, null, null, null, null, null);
+		cur.moveToFirst();
+		String userName = cur.getString(cur.getColumnIndexOrThrow(UserInfoEntry.COLUMN_USER_NAME));
+		String pass = cur.getString(cur.getColumnIndexOrThrow(UserInfoEntry.COLUMN_USER_PASS));
+		
+		UserInfo user = new UserInfo();
+		user.setUserName(userName);
+		user.setPass(pass);
+		
+		return user;
+    }
+    
+    public void doCall(View view) {
+    	Uri uri = Uri.parse("tel:13918949525");
+    	Intent callIntent = new Intent(Intent.ACTION_DIAL, uri);
+    	PackageManager pm = getPackageManager();
+    	List<ResolveInfo> resolveInfo = pm.queryIntentActivities(callIntent, 0);
+    	if(resolveInfo.size()> 0) {
+    		startActivity(callIntent);
+    	}
+    }
+    
+    public void doContact(View view) {
+    	Intent contactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
+    	contactIntent.setType(Phone.CONTENT_TYPE);
+    	startActivityForResult(contactIntent, CONTACT_PICK_REQUEST);
     }
 }

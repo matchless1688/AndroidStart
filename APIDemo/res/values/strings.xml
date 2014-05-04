@@ -15,5 +15,11 @@
     <string name="user_name">User Name:</string>
     <string name="user_pwd">Password:</string>
     <string name="user_pwd_confirm_hint">input password again</string>
-
+    <string name="pass_not_match">Two passwords are not consistent</string>
+    <string name="reg_success">Register successful</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_invalid">Username or password is not correct</string>
+	<string name="call_btn">Call</string>
+	<string name="contact_btn">Contact</string>
+	<string name="sendTxt_btn">Send Text</string>
 </resources>
