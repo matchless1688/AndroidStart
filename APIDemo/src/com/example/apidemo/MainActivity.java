@@ -16,10 +16,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
 import com.example.apidemo.dbhelper.UserInfoDbHelper;
@@ -29,6 +31,7 @@ import com.example.apidemo.module.UserInfoContract.UserInfoEntry;
 public class MainActivity extends ActionBarActivity {
 	
 	private static final int CONTACT_PICK_REQUEST = 1;
+	private ShareActionProvider shareActionProvider;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +46,21 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @Override
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         
         // Inflate the menu; this adds items to the action bar if it is present.
-        return super.onCreateOptionsMenu(menu);
+    	MenuInflater mi = getMenuInflater();
+    	mi.inflate(R.menu.sharelist, menu);
+    	MenuItem item = menu.findItem(R.id.menu_item_share);
+    	shareActionProvider = (ShareActionProvider) item.getActionProvider();
+        return true;
+    }
+    
+    private void setShareIntent(Intent intent) {
+    	if(shareActionProvider != null) {
+    		shareActionProvider.setShareIntent(intent);
+    	}
     }
 
     @Override
@@ -55,7 +68,14 @@ public class MainActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        return super.onOptionsItemSelected(item);
+    	if(item.getItemId() == R.id.menu_item_share) {
+    		Intent sendIntent = new Intent();
+    		sendIntent.setAction(Intent.ACTION_SEND);
+        	sendIntent.putExtra(Intent.EXTRA_TEXT, "welcome to api demo");
+        	sendIntent.setType("text/plain");
+        	setShareIntent(sendIntent);
+    	}
+        return true;
     }
 
     /**
@@ -154,5 +174,13 @@ public class MainActivity extends ActionBarActivity {
     	Intent contactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
     	contactIntent.setType(Phone.CONTENT_TYPE);
     	startActivityForResult(contactIntent, CONTACT_PICK_REQUEST);
+    }
+    
+    public void doSendTxt(View view) {
+    	Intent sendIntent = new Intent();
+    	sendIntent.setAction(Intent.ACTION_SEND);
+    	sendIntent.putExtra(Intent.EXTRA_TEXT, "welcome to api demo");
+    	sendIntent.setType("text/plain");
+    	startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.chooser_title)));
     }
 }
